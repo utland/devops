@@ -1,22 +1,49 @@
 #!/bin/bash
 
-DB_NAME="inventory"
-DB_USER="postgres"
+source "./logger.sh"
 
-# 1. Удаляем базу и пользователя (нужно делать под юзером postgres)
-sudo -u postgres psql -c "DROP DATABASE IF EXISTS $DB_NAME;"
-sudo -u postgres psql -c "DROP USER IF EXISTS $DB_USER;"
+APP_NAME="inventory-app"
 
-# 2. Останавливаем и удаляем пакеты PostgreSQL
-sudo systemctl stop postgresql
+log_warn "This script fully purge PostgreSQl, Nginx, NVM and systemd-service $APP_NAME"
+read -p "Are you sure (y/n): " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    log_info "Cancel operation"
+    exit 1
+fi
+
+cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)" || exit 1
+
+log_info "Deleting systemd-service..."
+sudo systemctl stop $APP_NAME >/dev/null 2>&1
+sudo systemctl disable $APP_NAME >/dev/null 2>&1
+sudo rm -f /etc/systemd/system/$APP_NAME.service
+sudo systemctl daemon-reload >/dev/null 2>&1
+log_success "Service is deleted"
+
+log_info "Deleting Nginx server with configs..."
+sudo systemctl stop nginx
+sudo rm -f /etc/nginx/sites-enabled/$APP_NAME
+sudo rm -f /etc/nginx/sites-available/$APP_NAME
+sudo apt purge -y nginx nginx-common 
+sudo rm -rf /etc/nginx/ /var/log/nginx/
+log_success "Nginx is purged"
+
+log_info "Deleting cluster of PostgreSQL..."
+sudo systemctl stop postgresql 
 sudo apt purge -y postgresql postgresql-contrib postgresql-common
-
-# 3. Удаляем конфигурационные файлы и данные (ВАЖНО: это удалит ВСЕ базы)
-sudo rm -rf /etc/postgresql/
-sudo rm -rf /var/lib/postgresql/
-sudo rm -rf /var/log/postgresql/
-
-# 4. Удаляем системного пользователя postgres (если нужно полностью «под ноль»)
+sudo rm -rf /etc/postgresql/ /var/lib/postgresql/ /var/log/postgresql/
 sudo deluser postgres
+sudo delgroup postgres
+log_success "Database and user are deleted"
 
-echo "✨ Система очищена от PostgreSQL."
+log_info "Deleting Node.js packages..."
+rm -rf "$HOME/.nvm"
+log_success "Node.js environment is clear"
+
+log_info "Clearing apt..."
+sudo apt autoremove -y 
+sudo apt clean
+log_success "Dependencies is deleted"
+
+echo -e "\n${GREEN}✨ Rollback is completed"
