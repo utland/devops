@@ -17,9 +17,9 @@ router.get("/", async (req: Request, res: Response) => {
             <tr><th>Name</th><th>Quantity</th></tr>
           </thead>
           <tbody>
-            ${items.forEach((item: any) => {
+            ${items.map((item: any) => {
              return `<tr><td>${item.name}</td><td>${item.quantity}</td></tr>`;
-            })}
+            }).join("")}
           </tbody>
         </table>
         `;
@@ -46,7 +46,7 @@ router.get("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const result = await db.query("SELECT * FROM items WHERE id = $1", [id]);
+    const result = await db.query("SELECT * FROM items WHERE item_id = $1", [id]);
     const item = result.rows[0]
 
     if (!item) {
@@ -101,7 +101,7 @@ router.post("/", async (req: Request, res: Response) => {
       [name, quantity]
     );
 
-    res.status(201);
+    res.status(201).send("OK");
   } catch (error) {
     res.status(500).format({
       "text/html": () => {
