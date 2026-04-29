@@ -17,17 +17,19 @@ fi
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)" || exit 1
 
 log_info "Deleting systemd-service..."
-sudo systemctl stop $APP_NAME >/dev/null 2>&1
-sudo systemctl disable $APP_NAME >/dev/null 2>&1
+sudo systemctl stop $APP_NAME.socket $APP_NAME.service >/dev/null 2>&1 || true
+sudo systemctl disable $APP_NAME.socket $APP_NAME.service >/dev/null 2>&1 || true
 sudo rm -f /etc/systemd/system/$APP_NAME.service
+sudo rm -f /etc/systemd/system/$APP_NAME.socket
 sudo systemctl daemon-reload >/dev/null 2>&1
+sudo systemctl reset-failed $APP_NAME.service $APP_NAME.socket >/dev/null 2>&1 || true
 log_success "Service is deleted"
 
 log_info "Deleting users..."
-sudo userdel -r student
-sudo userdel -r teacher
-sudo userdel -r operator
-sudo userdel -r app
+for user in "teacher" "student" "operator" "app"; do
+    sudo pkill -KILL -u $user
+    sudo userdel -r $user
+done
 login_success "Users are deleted"
 
 log_info "Deleting Nginx server with configs..."

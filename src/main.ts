@@ -11,6 +11,12 @@ app.use("/items", itemsRouter);
 app.use("/health", healthRouter);
 app.use("/", rootRouter);
 
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-});
+if (process.env.LISTEN_FDS === '1') {
+    const server = app.listen({ fd: 3 }, () => {
+        console.log('App is listening on systemd socket (fd 3)');
+    });
+} else {
+    const port = process.env.PORT || 8000;
+    app.listen(port, () => {console.log(`App is listening on port ${port}`);
+    });
+}
