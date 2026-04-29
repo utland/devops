@@ -50,13 +50,14 @@ log_info "Creating additional files..."
 
 sudo -u student bash -c 'echo "23" > /home/student/gradebook.txt'
 
-sudo mkdir /etc/inventory-app
-sudo cat <<EOF > /etc/inventory-app/config.env
+sudo mkdir -p /etc/inventory-app
+
+cat <<EOF | sudo tee /etc/inventory-app/config.env > /dev/null
 PORT=8000
 DB_USER=postgres
 DB_HOST=localhost
-DB_INVENTORY=inventory
-DB_PASSWORD=password123
+DB_DATABASE=inventory
+DB_PASSWORD=password
 DB_PORT=5432
 EOF
 
@@ -70,8 +71,8 @@ echo "====================================================="
 
 if [[ "$DEFAULT_USER" != "root" ]]; then
     sudo bash -c "
-        usermod --expiredate 1 $DEFAULT_USER >/dev/null 2>&1
-        sleep 3
-        pkill -KILL -u $DEFAULT_USER
+       usermod --expiredate 1 $DEFAULT_USER >/dev/null 2>&1
+       sleep 3
+       pkill -KILL -u $DEFAULT_USER
     "
 fi

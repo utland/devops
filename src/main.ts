@@ -17,6 +17,6 @@ if (process.env.LISTEN_FDS === '1') {
     });
 } else {
     app.listen(process.env.PORT || 8000, () => {
-        console.log(`App is listening on port ${port}`);
+        console.log(`App is listening on port ${process.env.PORT}`);
     });
 }
