@@ -24,6 +24,8 @@ npm i -g typescript
 
 log_success "Packages installed."
 
+chmod +x *.sh
+
 log_info "Creating users..."
 sudo ./users.sh
 log_success "Users are created."
@@ -44,9 +46,19 @@ log_info "Starting app..."
 sudo systemctl restart inventory-app
 log_success "App started."
 
-log_info "Creatiing text file..."
+log_info "Creating additional files..."
 
 sudo -u student bash -c 'echo "23" > /home/student/gradebook.txt'
+
+sudo mkdir /etc/inventory-app
+sudo cat <<EOF > /etc/inventory-app/config.env
+PORT=8000
+DB_USER=postgres
+DB_HOST=localhost
+DB_INVENTORY=inventory
+DB_PASSWORD=password123
+DB_PORT=5432
+EOF
 
 DEFAULT_USER=${SUDO_USER:-$USER}
 

@@ -38,6 +38,9 @@ After=network.target $APP_NAME.socket
 
 [Service]
 WorkingDirectory=$DEPLOY_DIR
+
+EnvironmentFile=/etc/inventory-app/config.env
+
 ExecStartPre=/usr/local/bin/npm run build
 ExecStart=/usr/local/bin/node $DEPLOY_DIR/dist/main.js
 
