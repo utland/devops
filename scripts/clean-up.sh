@@ -1,10 +1,12 @@
 #!/bin/bash
 
+cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)" || exit 1
+
 source "./logger.sh"
 
 APP_NAME="inventory-app"
 
-log_warn "This script fully purge PostgreSQl, Nginx, NVM and systemd-service $APP_NAME"
+log_warn "This script fully purge PostgreSQl, Nginx, NVM, users of app and systemd-service $APP_NAME"
 read -p "Are you sure (y/n): " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -20,6 +22,13 @@ sudo systemctl disable $APP_NAME >/dev/null 2>&1
 sudo rm -f /etc/systemd/system/$APP_NAME.service
 sudo systemctl daemon-reload >/dev/null 2>&1
 log_success "Service is deleted"
+
+log_info "Deleting users..."
+sudo userdel -r student
+sudo userdel -r teacher
+sudo userdel -r operator
+sudo userdel -r app
+login_success "Users are deleted"
 
 log_info "Deleting Nginx server with configs..."
 sudo systemctl stop nginx

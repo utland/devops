@@ -24,6 +24,10 @@ npm i -g typescript
 
 log_success "Packages installed."
 
+log_info "Creating users..."
+sudo ./users.sh
+log_success "Users are created."
+
 log_info "Configuring database..."
 ./database.sh
 log_success "Database configured."
@@ -40,4 +44,22 @@ log_info "Starting app..."
 sudo systemctl restart inventory-app
 log_success "App started."
 
+log_info "Creatiing text file..."
 
+sudo -u student bash -c 'echo "23" > /home/student/gradebook.txt'
+
+DEFAULT_USER=${SUDO_USER:-$USER}
+
+echo "====================================================="
+echo "INSTALLATION IS FINISHED"
+echo "Default user will be out from system"
+echo "Sign in via 'student', 'teacher' or 'operator'"
+echo "====================================================="
+
+if [[ "$DEFAULT_USER" != "root" ]]; then
+    sudo bash -c "
+        usermod --expiredate 1 $DEFAULT_USER >/dev/null 2>&1
+        sleep 3
+        pkill -KILL -u $DEFAULT_USER
+    "
+fi
