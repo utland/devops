@@ -8,7 +8,8 @@
   "main": "main.js",
   "scripts": {
     "start": "tsc && node dist/main.js",
-    "build": "tsc"
+    "build": "tsc",
+    "migrate": "tsc && node dist/database/migration.js"
   },
   "dependencies": {
     "express": "^5.2.1",
