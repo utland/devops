@@ -5,8 +5,7 @@ WORKDIR /usr/src/app
 COPY package.json ./
 COPY tsconfig.json ./
 
-RUN npm install -g typescript
-RUN npm install
+RUN npm install -g typescript@5.3.3 && npm install
 
 COPY src ./src
 
