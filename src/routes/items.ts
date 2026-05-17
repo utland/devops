@@ -1,23 +1,30 @@
 import { Router, type Request, type Response } from "express";
-import db from "../database/connection.js";
+import db from "../database/connection";
 
 const router = Router();
 
+type ItemModel = {
+  inventory_id: number;
+  name: string;
+  quantity: number;
+  created_at: Date;
+}
+
 router.get("/", async (req: Request, res: Response) => {
   try {
-    const result = await db.query("SELECT name, quantity FROM items");
+    const result = await db.query<ItemModel>("SELECT name, quantity FROM items");
     const items = result.rows;
 
     res.status(200).format({
       "text/html": () => {
-        let html = `
+        const html = `
         <h1>Items</h1>
         <table border='1'>
           <thead>
             <tr><th>Name</th><th>Quantity</th></tr>
           </thead>
           <tbody>
-            ${items.map((item: any) => {
+            ${items.map((item: ItemModel) => {
              return `<tr><td>${item.name}</td><td>${item.quantity}</td></tr>`;
             }).join("")}
           </tbody>
@@ -62,7 +69,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.status(200).format({
       "text/html": () => {
-        let html = `
+        const html = `
         <div>
           <h1>Id: ${item.inventory_id}</h1>
           <h2>Name: ${item.name}</h1>
