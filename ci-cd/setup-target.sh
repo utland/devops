@@ -57,6 +57,7 @@ Requires=docker.service postgres-db.service
 After=docker.service postgres-db.service
 
 [Service]
+EnvironmentFile=/etc/app-config/.env
 Restart=always
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop nodejs-app
