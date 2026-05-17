@@ -140,13 +140,14 @@ jobs:
         env:
           TARGET_IP: ${{ secrets.TARGET_IP }}
         run: |
-          sleep 10
+          sleep 5
           
-          HTTP_STATUS=\$(curl -o /dev/null -s -w "%{http_code}\n" http://$TARGET_IP)
+          HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}\n" http://$TARGET_IP)
           
-          if [ "\$HTTP_STATUS" -eq 200 ]; then
-            echo "✅ Verify Deployment: Success! Application is responding (Status 200)."
+          # Убираем бэкслеш перед проверкой переменной
+          if [ "$HTTP_STATUS" -eq 200 ]; then
+            echo "✅ Verification successful! Received HTTP status code: $HTTP_STATUS"
           else
-            echo "❌ Verify Deployment: Failed! Received status from Nginx: \$HTTP_STATUS"
+            echo "❌ Verification failed! Received status from Nginx: $HTTP_STATUS"
             exit 1
           fi
