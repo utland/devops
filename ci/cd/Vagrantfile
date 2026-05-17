@@ -13,4 +13,17 @@ Vagrant.configure("2") do |config|
     
     runner.vm.provision "shell", path: "setup-runner.sh"
   end
+
+  config.vm.define "target" do |target|
+    target.vm.hostname = "target-node"
+    target.vm.network "private_network", ip: "192.168.56.20"
+    
+    target.vm.provider "virtualbox" do |vb|
+      vb.memory = "2048"
+      vb.cpus = 2
+      vb.name = "devops_target_vm"
+    end
+    
+    target.vm.provision "shell", path: "setup-target.sh"
+  end
 end

@@ -7,12 +7,12 @@ DEPLOY_DIR="/opt/$APP_NAME"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." >/dev/null 2>&1 && pwd)"
 DEFAULT_USER=${SUDO_USER:-$USER}
 
-sudo mkdir -p $DEPLOY_DIR
-sudo cp -a $PROJECT_DIR/. $DEPLOY_DIR/
-sudo chown -R app:app $DEPLOY_DIR
+sudo mkdir -p "$DEPLOY_DIR"
+sudo cp -a "$PROJECT_DIR/." "$DEPLOY_DIR/"
+sudo chown -R app:app "$DEPLOY_DIR"
 
-NODE_BIN=$(find /home/$DEFAULT_USER/.nvm/versions/node -name "node" -type f -executable | head -n 1)
-NODE_DIR=$(dirname $(dirname "$NODE_BIN"))
+NODE_BIN=$(find "/home/$DEFAULT_USER/.nvm/versions/node" -name "node" -type f -executable | head -n 1)
+NODE_DIR=$(dirname "$(dirname "$NODE_BIN")")
 
 sudo cp -r "$NODE_DIR" /opt/node
 

@@ -38,6 +38,8 @@ jobs:
 
       - name: Run Shellcheck (Shell scripts linter)
         uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './scripts'
 
   testing:
     name: Automated Tests

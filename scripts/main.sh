@@ -2,6 +2,7 @@
 
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)" || exit 1
 
+# shellcheck disable=SC1091
 source "./logger.sh"
 
 log_info "Installing packages..."
@@ -12,6 +13,7 @@ if [ ! -s "$NVM_DIR/nvm.sh" ]; then
 fi
 
 if [ -s "$NVM_DIR/nvm.sh" ]; then
+    # shellcheck disable=SC1091
     \. "$NVM_DIR/nvm.sh"
 else
     log_error "Critical: NVM installation failed or file is missing!"
@@ -24,7 +26,7 @@ npm i -g typescript
 
 log_success "Packages installed."
 
-chmod +x *.sh
+chmod +x ./*.sh
 
 log_info "Creating users..."
 sudo ./users.sh

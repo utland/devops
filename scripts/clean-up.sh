@@ -2,6 +2,7 @@
 
 cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)" || exit 1
 
+# shellcheck source=scripts/logger.sh
 source "./logger.sh"
 
 APP_NAME="inventory-app"

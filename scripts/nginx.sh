@@ -38,7 +38,6 @@ fi
 
 sudo rm -f /etc/nginx/sites-enabled/default
 
-sudo nginx -t
-if [ $? -eq 0 ]; then
+if sudo nginx -t; then
     sudo systemctl restart nginx
 fi
