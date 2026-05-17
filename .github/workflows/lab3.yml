@@ -127,6 +127,7 @@ jobs:
             echo "POSTGRES_PASSWORD=$DB_PASSWORD" >> /tmp/.env
             echo "POSTGRES_DB=app_db" >> /tmp/.env
             echo "DATABASE_URL=postgres://$DB_USER:$DB_PASSWORD@postgres-db:5432/app_db" >> /tmp/.env
+            echo "APP_IMAGE=ghcr.io/${{ github.repository }}:stable" | tr '[:upper:]' '[:lower:]' >> /tmp/.env
             sudo mv /tmp/.env /etc/app-config/.env
             
             sudo systemctl start postgres-db

@@ -62,7 +62,7 @@ TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop nodejs-app
 ExecStartPre=-/usr/bin/docker rm nodejs-app
 
-ExecStart=/usr/bin/docker run --name nodejs-app --network app-network -p 3000:3000 --env-file /etc/app-config/.env ghcr.io/LOGIN/REPO:stable
+ExecStart=/usr/bin/docker run --name nodejs-app --network app-network -p 3000:3000 --env-file /etc/app-config/.env \${APP_IMAGE}
 ExecStop=/usr/bin/docker stop nodejs-app
 
 [Install]
