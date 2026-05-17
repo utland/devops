@@ -40,6 +40,8 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: './scripts'
+        env:
+          SHELLCHECK_OPTS: -x
 
   testing:
     name: Automated Tests
@@ -102,3 +104,49 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  
+  deploy:
+    name: Deploy to Target Node
+    needs: [build-and-push]
+    
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    runs-on: self-hosted
+    
+    steps:
+      - name: Deploy via SSH
+        env:
+          TARGET_IP: ${{ secrets.TARGET_IP }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          GHCR_PAT: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        run: |
+          ssh -o StrictHostKeyChecking=no vagrant@$TARGET_IP << EOF
+            echo "POSTGRES_USER=$DB_USER" > /tmp/.env
+            echo "POSTGRES_PASSWORD=$DB_PASSWORD" >> /tmp/.env
+            echo "POSTGRES_DB=app_db" >> /tmp/.env
+            echo "DATABASE_URL=postgres://$DB_USER:$DB_PASSWORD@postgres-db:5432/app_db" >> /tmp/.env
+            sudo mv /tmp/.env /etc/app-config/.env
+            
+            sudo systemctl start postgres-db
+            
+            docker pull ghcr.io/${{ github.repository }}:stable
+            
+            sudo systemctl restart nodejs-app
+          EOF
+
+      - name: Verify Deployment
+        env:
+          TARGET_IP: ${{ secrets.TARGET_IP }}
+        run: |
+          sleep 10
+          
+          HTTP_STATUS=\$(curl -o /dev/null -s -w "%{http_code}\n" http://$TARGET_IP)
+          
+          if [ "\$HTTP_STATUS" -eq 200 ]; then
+            echo "✅ Verify Deployment: Success! Application is responding (Status 200)."
+          else
+            echo "❌ Verify Deployment: Failed! Received status from Nginx: \$HTTP_STATUS"
+            exit 1
+          fi
