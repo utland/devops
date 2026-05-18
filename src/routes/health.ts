@@ -11,7 +11,7 @@ router.get("/ready", async (req: Request, res: Response) => {
   try {
     await db.query("SELECT 1");
     
-    res.status(200).send("OK");
+    res.status(200).send("The databse is available");
   } catch (error) {
     res.status(503).send("The database is unavailable");
   }
