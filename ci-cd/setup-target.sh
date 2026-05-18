@@ -21,9 +21,15 @@ EOF
 systemctl restart nginx
 systemctl enable nginx docker
 
-mkdir -p /etc/app-config
-touch /etc/app-config/.env
-chmod 600 /etc/app-config/.env
+mkdir -p /etc/inventory-app
+
+mkdir -p /etc/inventory-app/postgres
+touch /etc/inventory-app/postgres/.env
+chmod 600 /etc/inventory-app/postgres/.env
+
+mkdir -p /etc/inventory-app/node
+touch /etc/inventory-app/node/.env
+chmod 600 /etc/inventory-app/node/.env
 
 docker network create app-network || true
 docker volume create pgdata || true
@@ -41,7 +47,7 @@ TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop postgres-db
 ExecStartPre=-/usr/bin/docker rm postgres-db
 
-ExecStart=/usr/bin/docker run --name postgres-db --network app-network -p 5432:5432 -v pgdata:/var/lib/postgresql/data --env-file /etc/app-config/.env postgres:15
+ExecStart=/usr/bin/docker run --name postgres-db --network app-network -p 5432:5432 -v pgdata:/var/lib/postgresql/data --env-file /etc/inventory-app/postgres/.env postgres:15
 ExecStop=/usr/bin/docker stop postgres-db
 
 [Install]
@@ -57,13 +63,13 @@ Requires=docker.service postgres-db.service
 After=docker.service postgres-db.service
 
 [Service]
-EnvironmentFile=/etc/app-config/.env
+EnvironmentFile=/etc/inventory-app/node/.env
 Restart=always
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker stop nodejs-app
 ExecStartPre=-/usr/bin/docker rm nodejs-app
 
-ExecStart=/usr/bin/docker run --name nodejs-app --network app-network -p 3000:3000 --env-file /etc/app-config/.env \${APP_IMAGE}
+ExecStart=/usr/bin/docker run --name nodejs-app --network app-network -p 3000:3000 --env-file /etc/inventory-app/node/.env \${APP_IMAGE}
 ExecStop=/usr/bin/docker stop nodejs-app
 
 [Install]

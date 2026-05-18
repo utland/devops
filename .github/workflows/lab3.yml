@@ -125,13 +125,23 @@ jobs:
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
 
           ssh -o StrictHostKeyChecking=no vagrant@$TARGET_IP << EOF
-            echo "POSTGRES_USER=$DB_USER" > /tmp/.env
-            echo "POSTGRES_PASSWORD=$DB_PASSWORD" >> /tmp/.env
-            echo "POSTGRES_DB=app_db" >> /tmp/.env
-            echo "DATABASE_URL=postgres://$DB_USER:$DB_PASSWORD@postgres-db:5432/app_db" >> /tmp/.env
-            echo "PORT=3000" >> /tmp/.env
-            echo "APP_IMAGE=ghcr.io/$REPO_LOWER:stable" >> /tmp/.env
-            sudo mv /tmp/.env /etc/app-config/.env
+            mkdir -p /tmp/postgres
+            mkdir -p /tmp/node
+
+            echo "POSTGRES_USER=$DB_USER" >> /tmp/postgres/.env
+            echo "POSTGRES_PASSWORD=$DB_PASSWORD" >> /tmp/postgres/.env
+            echo "POSTGRES_DB=app_db" >> /tmp/postgres/.env
+            
+            echo "DB_USER=$DB_USER" >> /tmp/node/.env
+            echo "DB_PASSWORD=$DB_PASSWORD" >> /tmp/node/.env
+            echo "DB_HOST=postgres-db" >> /tmp/node/.env
+            echo "DB_DATABASE=app_db" >> /tmp/node/.env
+            echo "DB_PORT=5432" >> /tmp/node/.env
+            echo "PORT=3000" >> /tmp/node/.env
+            echo "APP_IMAGE=ghcr.io/$REPO_LOWER:stable" >> /tmp/node/.env
+
+            sudo mv /tmp/node/.env /etc/inventory-app/node/.env
+            sudo mv /tmp/postgres/.env /etc/inventory-app/postgres/.env
             
             sudo systemctl start postgres-db
             
