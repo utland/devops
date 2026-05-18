@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import request from 'supertest';
 import express, { type Express } from 'express';
-import itemsRouter from '../items';
-import db from '../../database/connection';
+import itemsRouter from '../items.js';
+import db from '../../database/connection.js';
 
 jest.mock('../../database/connection');
 

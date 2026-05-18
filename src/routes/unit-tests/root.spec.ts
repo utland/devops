@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from '@jest/globals';
 import request from 'supertest';
 import express, { type Express } from 'express';
-import rootRouter from "../root";
+import rootRouter from "../root.js";
 
 describe('Root Routes', () => {
   let app: Express;

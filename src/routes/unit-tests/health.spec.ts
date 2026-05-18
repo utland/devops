@@ -1,8 +1,8 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import express, { type Express } from 'express';
-import healthRouter from '../health';
-import db from '../../database/connection';
+import healthRouter from '../health.js';
+import db from '../../database/connection.js';
 
 jest.mock('../../database/connection');
 

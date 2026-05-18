@@ -1,7 +1,7 @@
 import express from "express";
-import itemsRouter from "./routes/items";
-import healthRouter from "./routes/health";
-import rootRouter from "./routes/root"
+import itemsRouter from "./routes/items.js";
+import healthRouter from "./routes/health.js";
+import rootRouter from "./routes/root.js";
 
 const app = express();
 
@@ -17,6 +17,6 @@ if (process.env.LISTEN_FDS === '1') {
     });
 } else {
     app.listen(process.env.PORT || 8000, () => {
-        console.log(`App is listening on port ${process.env.PORT}`);
+        console.log(`App is listening on port ${process.env.PORT || 8000}`);
     });
 }
