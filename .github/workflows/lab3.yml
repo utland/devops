@@ -129,6 +129,7 @@ jobs:
             echo "POSTGRES_PASSWORD=$DB_PASSWORD" >> /tmp/.env
             echo "POSTGRES_DB=app_db" >> /tmp/.env
             echo "DATABASE_URL=postgres://$DB_USER:$DB_PASSWORD@postgres-db:5432/app_db" >> /tmp/.env
+            echo "PORT=3000" >> /tmp/.env
             echo "APP_IMAGE=ghcr.io/$REPO_LOWER:stable" >> /tmp/.env
             sudo mv /tmp/.env /etc/app-config/.env
             
@@ -147,7 +148,6 @@ jobs:
           
           HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}\n" http://$TARGET_IP)
           
-          # Убираем бэкслеш перед проверкой переменной
           if [ "$HTTP_STATUS" -eq 200 ]; then
             echo "✅ Verification successful! Received HTTP status code: $HTTP_STATUS"
           else
