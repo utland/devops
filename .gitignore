@@ -2,3 +2,8 @@ node_modules
 dist
 .env
 .vagrant
+ansible_key.pem
+.terraform
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup

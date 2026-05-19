@@ -1,0 +1,90 @@
+- name: Створення системного користувача 'app' для бекенду
+  user:
+    name: app
+    system: yes
+    shell: /usr/sbin/nologin
+
+- name: Створення користувача 'operator' із паролем за-замовчуванням
+  user:
+    name: operator
+    password: "{{ '12345678' | password_hash('sha512') }}"
+    shell: /bin/bash
+
+- name: Налаштування обмежених прав sudo для 'operator'
+  copy:
+    dest: /etc/sudoers.d/operator
+    content: |
+      operator ALL=(ALL) NOPASSWD: /bin/systemctl start app, /bin/systemctl stop app, /bin/systemctl restart app, /bin/systemctl status app, /bin/systemctl reload nginx
+    validate: /usr/sbin/visudo -cf %s
+    mode: '0440'
+
+- name: Встановлення Nginx, Node.js, npm та acl
+  apt:
+    name: 
+      - nginx
+      - nodejs
+      - npm
+      - acl   
+    state: present
+    update_cache: yes
+
+- name: Генерація конфігурації Nginx з шаблону
+  template:
+    src: nginx.conf.j2 
+    dest: /etc/nginx/sites-available/default
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload nginx
+
+- name: Створення директорії для застосунку
+  file:
+    path: /opt/app
+    state: directory
+    owner: app
+    group: app
+    mode: '0755'
+
+- name: Копіювання конфігураційних файлів застосунку
+  copy:
+    src: "../../../../../{{ item }}"
+    dest: "/opt/app/{{ item }}"
+    owner: app
+    group: app
+    mode: '0644'
+  loop:
+    - package.json
+    - tsconfig.json
+
+- name: Копіювання директорії з вихідним кодом (src)
+  copy:
+    src: ../../../../../src/
+    dest: /opt/app/src/
+    owner: app
+    group: app
+    mode: '0755'
+
+- name: Встановлення залежностей застосунку (npm install)
+  npm:
+    path: /opt/app
+  become: yes
+  become_user: app
+
+- name: Збірка TypeScript застосунку (npm run build)
+  command: npm run build
+  args:
+    chdir: /opt/app
+  become: yes
+  become_user: app
+
+- name: Створення Systemd сервісу для застосунку
+  template:
+    src: app.service.j2
+    dest: /etc/systemd/system/app.service
+  notify: restart app
+
+- name: Перевірка, що Nginx запущено та додано в автозавантаження
+  service:
+    name: nginx
+    state: started
+    enabled: yes

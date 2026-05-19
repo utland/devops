@@ -1,0 +1,6 @@
+db_user: "app_user"
+db_password: "secure_password_123"
+db_name: "app_database"
+db_port: 5432
+
+app_port: 8000

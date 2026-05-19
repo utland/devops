@@ -1,0 +1,19 @@
+[Unit]
+Description=MyWebApplication
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=app
+WorkingDirectory=/opt/app
+ExecStart=/usr/bin/node /opt/app/dist/main.js
+Restart=on-failure
+
+Environment="DB_USER={{ db_user }}"
+Environment="DB_PASSWORD={{ db_password }}"
+Environment="DB_DATABASE={{ db_name }}"
+Environment="DB_HOST={{ hostvars[groups['db'][0]]['ansible_host'] }}"
+Environment="DB_PORT={{ db_port }}"
+
+[Install]
+WantedBy=multi-user.target

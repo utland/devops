@@ -1,0 +1,11 @@
+plugin: cloud.terraform.terraform_provider
+project_path: ../terraform
+
+groups:
+  workers: "'worker' in inventory_hostname"
+  db: "'db' in inventory_hostname"
+
+compose:
+  ansible_user: "'ansible'"
+  ansible_ssh_common_args: "'-o StrictHostKeyChecking=no'"
+  ansible_host: network_interface[0].addresses[0]

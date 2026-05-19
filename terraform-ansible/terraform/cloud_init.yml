@@ -1,0 +1,10 @@
+#cloud-config
+users:
+  - name: ansible
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: sudo, wheel
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${ssh_key}
+
+ssh_pwauth: false

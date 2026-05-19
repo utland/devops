@@ -1,0 +1,58 @@
+- name: Встановлення PostgreSQL та залежностей для Ansible
+  apt:
+    name: 
+      - postgresql
+      - python3-psycopg2
+      - acl
+    state: present
+    update_cache: yes
+
+- name: Налаштування PostgreSQL для прослуховування всіх інтерфейсів
+  lineinfile:
+    path: /etc/postgresql/16/main/postgresql.conf
+    regexp: '^#?listen_addresses'
+    line: "listen_addresses = '*'"
+  notify: restart postgresql
+
+- name: Дозвіл віддаленого підключення в pg_hba.conf
+  community.postgresql.postgresql_pg_hba:
+    dest: /etc/postgresql/16/main/pg_hba.conf
+    contype: host
+    databases: "{{ db_name }}"
+    users: "{{ db_user }}"
+    source: "{{ hostvars[groups['workers'][0]]['ansible_host'] }}/32"
+    method: scram-sha-256
+  notify: restart postgresql
+
+- name: Створення бази даних для застосунку
+  community.postgresql.postgresql_db:
+    name: "{{ db_name }}"
+  become: yes
+  become_user: postgres
+
+- name: Створення користувача БД та надання прав
+  community.postgresql.postgresql_user:
+    db: "{{ db_name }}"
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    priv: ALL
+  become: yes
+  become_user: postgres
+
+- name: Дозвіл доступу до БД ТІЛЬКИ з віртуальної машини worker (UFW)
+  ufw:
+    rule: allow
+    proto: tcp
+    port: "{{ db_port }}"
+    src: "{{ hostvars[groups['workers'][0]]['ansible_host'] }}"
+
+- name: Дозвіл SSH, щоб уникнути втрати доступу
+  ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+
+- name: Увімкнення UFW та заборона всього іншого за-замовчуванням
+  ufw:
+    state: enabled
+    policy: deny
