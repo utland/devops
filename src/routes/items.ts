@@ -67,7 +67,7 @@ router.get("/:id", async (req: Request, res: Response) => {
       });
     }
 
-    res.status(200).format({
+    res.status(201).format({
       "text/html": () => {
         const html = `
         <div>
